@@ -1,0 +1,101 @@
+---
+title: "team"
+author: "Rushal Sohal, Rohan Mishra; github: rsohal, rohmish"
+date: "2/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lab 3
+
+```{r}
+if(!require("readxl")){
+  install.packages('readxl')
+  install.packages("ggplot2")
+  install.packages("dplyr")
+  install.packages("ggmosaic")
+}
+library(dplyr)
+library(ggmosaic)
+library(ggplot2)
+```
+
+
+```{r}
+dat <- readxl::read_xls('/Users/rushalsohal/Desktop/Rushal/Sophomore_Spring2020/GSS.xls')
+names(dat) <- c('year', 'id', 'work_hrs', 'marital_status', 'num_children','sex', 'pol_party', 'happy', 'ballot')
+
+```
+
+### **1.**
+```{r, fig.width=10}
+tmp <- dat %>% select(marital_status, happy)
+ggplot(data = tmp, aes(x = marital_status, fill = happy)) + geom_bar(position = "fill") + ggtitle("Happiness by Marital Status") + xlab("Marital Status") + ylab("Proportion of people")
+```
+
+Married and never married people are the most happy. People in general who have lost their significant other (divorced, separated, widowed) tend to remain unhappy.
+
+## **2.**
+```{r, fig.width=20, fig.height=10}
+tmp <- na.omit(dat) %>% select(marital_status, happy, sex)
+ggplot(data = tmp, aes(x = marital_status, fill = happy)) +
+  geom_bar(position = "fill") + 
+  facet_wrap(~sex) + 
+  ggtitle("Happiness by Marital Status for sexes") +
+  xlab("Marital Status") +
+  ylab("Proportion of people")
+```
+
+The sex of the respondent doesn't affect the relationship I found in Problem 1. Irrespective of the sex, married/never married people are more happy over the seaparated/divorced/widowed.
+
+## **3.**
+```{r, fig.width=10, fig.height=10}
+dat$pol_party <- factor(dat$pol_party, levels = c("Strong democrat","Not str democrat", "Ind,near dem", "Strong republican","Not st republican", "Ind,near rep", "Independent", "Other party", "Don't know"))
+counts <- dat %>% group_by(happy, pol_party) %>% summarise(counts = n()) 
+ggplot(data = counts, aes(x = pol_party, y = counts, fill = happy)) + 
+geom_bar(stat = "identity", position = position_dodge()) +
+ggtitle("Happiness by Political Affiliation") + xlab("Political Party") + ylab("Number of People")
+
+ggplot(data = dat, aes(x = pol_party, fill = happy)) + geom_bar(position = "fill") + ggtitle("Happiness by Political Affiliation") + xlab("Political Party") + ylab("Proportion of People")
+```
+
+There are more not strong democrats who are happy. Percentage wise, Ind,near rep tend to be overall happy compared to other political affiliations. Strong republicans are the least unhappy.
+
+## **4.**
+
+### *a.* How do the number of children affect happiness?
+```{r, fig.width=10}
+ggplot(data = dat, aes(x = num_children, fill = happy)) + geom_bar(position = "fill") + ggtitle("Happiness by Number of Children") + xlab("Number of Children") + ylab("Proportion of People")
+
+```
+
+There are marginal differences and not a clear trend. However, we can say that people tend to either like it a lot "very happy" or hate it "not too happy".
+
+### *b.* Does the sex of the respondent affect their political affiliation?
+
+```{r}
+ggplot(data = na.omit(dat), aes(x = sex, fill = pol_party)) + geom_bar(position = "fill") + ggtitle("Political Affiliation by Sex") + xlab("Political Party") + ylab("Proportion of People")
+```
+
+The political party distribution is about the same for both sexes. Nevertheless, we can say that females have a higher distribution/ spread of "strong democrat" vs "not str democrat".
+
+### *c.* How are political affiliations realted to marital status?
+
+```{r, fig.width=10}
+ggplot(data = na.omit(dat), aes(x = marital_status, fill = pol_party)) + geom_bar(position = "fill") + ggtitle("Political Affiliation by Marital Status") + xlab("Marital Status") + ylab("Proportion of People")
+```
+
+Widowed people tend to be strong democrats, not str democrats, and strong republicans, thus showing extreme political affiliations. Separated people tend to be more be independent candidates.
+
+### *d.* Does the number of children affect political affiliation?
+
+```{r}
+ggplot(data = na.omit(dat), aes(x = num_children, fill = pol_party)) + geom_bar(position = "fill") + ggtitle("Political Affiliation by Number of children") + xlab("Number of children") + ylab("Proportion of People")
+```
+
+As the number of children increase, people tend to be stronger democrats.
+
+***We wanted to use Work_hrs, however, the data values showed N/A***
